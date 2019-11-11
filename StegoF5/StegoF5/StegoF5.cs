@@ -36,5 +36,15 @@ namespace StegoF5
             //Embed(areaEmdedding, sb.ToString());
             return new Bitmap(20, 20);
         }
+
+        public static Bitmap ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
+            Dictionary<string, bool[]>[] areaEmdedding, int widthImage, int heightImage)
+        {
+            string binImage = string.Empty; //битовая строка изображения
+            //извлечение изображения из стегоконтейнера
+            //binImage = Extract(areaEmdedding, width * height * 3 * 8);
+
+            return binImage.ToBitmap(widthImage, heightImage);
+        }
     }
 }

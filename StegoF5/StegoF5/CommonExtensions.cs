@@ -42,5 +42,43 @@ namespace StegoF5
 
             return resultString.ToString();
         }
+
+        internal static Bitmap ToBitmap(this string value, int widthImage, int heightImage)
+        {
+            var image = new Bitmap(widthImage, heightImage);
+            //сохранение извлеченного изображения
+            int length = 0;//счетчик длины бинарной строки
+            for (int x = 0; x < heightImage; x++)
+            {
+                for (int y = 0; y < widthImage; y++)
+                {
+                    byte red, green, blue;
+                    if (length < value.Length)
+                    {
+                        red = Convert.ToByte(value.Substring(length, 8), 2);
+                        length += 8;
+                    }
+                    else red = 0;
+
+                    if (length < value.Length)
+                    {
+                        green = Convert.ToByte(value.Substring(length, 8), 2);
+                        length += 8;
+                    }
+                    else green = 0;
+
+                    if (length < value.Length)
+                    {
+                        blue = Convert.ToByte(value.Substring(length, 8), 2);
+                        length += 8;
+                    }
+                    else blue = 0;
+
+                    image.SetPixel(x, y, Color.FromArgb(red, green, blue));
+                }
+            }
+
+            return image;
+        }
     }
 }
