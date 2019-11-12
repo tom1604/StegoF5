@@ -80,5 +80,40 @@ namespace StegoF5
 
             return image;
         }
+
+        internal static string ToTextString(this string value, int textLength)
+        {
+            var resultString = new StringBuilder();
+            for (var i = 0; i < textLength; i++)
+            {
+                try
+                {
+                    var letter = Convert.ToInt32(value.Substring(i * 16, 16), 2);
+                    resultString.Append(Convert.ToChar(letter));
+                }
+                catch (Exception)
+                { break; }
+            }
+
+            return resultString.ToString();
+        }
+
+        internal static string ToTextString(this string value)
+        {
+            var resultString = new StringBuilder();
+            var countChars = value.Length / 16;
+            for (var i = 0; i < countChars; i++)
+            {
+                try
+                {
+                    var letter = Convert.ToInt32(value.Substring(i * 16, 16), 2);
+                    resultString.Append(Convert.ToChar(letter));
+                }
+                catch (Exception)
+                { break; }
+            }
+
+            return resultString.ToString();
+        }
     }
 }
