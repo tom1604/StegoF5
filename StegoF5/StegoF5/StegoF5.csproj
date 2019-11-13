@@ -42,8 +42,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonExtensions.cs" />
-    <Compile Include="IEmbeddable.cs" />
+    <Compile Include="BaseF5.cs" />
+    <Compile Include="Extensions\CommonExtensions.cs" />
+    <Compile Include="F5Embedding.cs" />
+    <Compile Include="F5Extracting.cs" />
+    <Compile Include="Interfaces\IEmbeddable.cs" />
+    <Compile Include="Interfaces\IExtractable.cs" />
+    <Compile Include="Interfaces\IModifiable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StegoF5.cs" />
   </ItemGroup>

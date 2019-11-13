@@ -1,42 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace StegoF5
 {
     public static class StegoF5
     {
-        private static IEmbeddable s { get; }
+        private static IModifiable Modifier { get; }
 
         static StegoF5()
         {
-            
+            Modifier = Activator.CreateInstance<IModifiable>();
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, int bitsLength)
         {
             var bitsSequance = CommonExtensions.GenerateBitsSequence(bitsLength);
-            //встраивания сгенерированной битовой строки в контейнре
-            //Embed(areaEmdedding, sb.ToString());
-            return new Bitmap(20,20);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsSequance);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, string text)
         {
             var bitsString = text.ToBitsString();
-            //встраивания битовой строки в контейнер
-            //Embed(areaEmdedding, sb.ToString());
-            return new Bitmap(20, 20);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, Bitmap embeddableImage)
         {
             var bitsString = embeddableImage.ToBitsString();
-            //встраивание битовой строки в контейнер
-            //Embed(areaEmdedding, sb.ToString());
-            return new Bitmap(20, 20);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
         }
 
         public static Bitmap ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,

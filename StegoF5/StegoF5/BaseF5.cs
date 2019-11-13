@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StegoF5
 {
-    interface IEmbeddable
+    internal class BaseF5
     {
 
     }
