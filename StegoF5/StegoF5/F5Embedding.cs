@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using StegoF5.Extensions;
+using StegoF5.Interfaces;
 
 namespace StegoF5
 {

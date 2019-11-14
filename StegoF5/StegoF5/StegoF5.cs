@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using StegoF5.Extensions;
+using StegoF5.Interfaces;
 
 namespace StegoF5
 {
@@ -38,28 +39,23 @@ namespace StegoF5
         public static Bitmap ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, int widthImage, int heightImage)
         {
-            string binImage = string.Empty; //битовая строка изображения
-            //извлечение изображения из стегоконтейнера
-            //binImage = Extract(areaEmdedding, width * height * 3 * 8);
-
+            var countBits = widthImage * heightImage * 3 * 8;
+            var binImage = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, countBits);
             return binImage.ToBitmap(widthImage, heightImage);
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, int textLength)
         {
-            var binText = string.Empty;//битовая строка текста
-           // binText = Extract(areaEmdedding, textLength * 16);//извлечение текста из стегоконтейнера
-
+            var countBits = textLength * 16;
+            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, countBits);
             return binText.ToTextString(textLength);
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding)
         {
-            var binText = string.Empty;//битовая строка текста
-            // binText = Extract(areaEmdedding, textLength * 16);//извлечение текста из стегоконтейнера
-
+            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, null);
             return binText.ToTextString();
         }
     }

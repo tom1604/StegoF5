@@ -33,7 +33,7 @@ namespace StegoF5.Extensions
             {
                 for (var y = 0; y < value.Width; y++)
                 {
-                    Color pixel = value.GetPixel(x, y);
+                    var pixel = value.GetPixel(x, y);
                     resultString.Append(Convert.ToString(pixel.R, 2).PadLeft(8, '0'));
                     resultString.Append(Convert.ToString(pixel.G, 2).PadLeft(8, '0'));
                     resultString.Append(Convert.ToString(pixel.B, 2).PadLeft(8, '0'));
@@ -47,10 +47,10 @@ namespace StegoF5.Extensions
         {
             var image = new Bitmap(widthImage, heightImage);
             //сохранение извлеченного изображения
-            int length = 0;//счетчик длины бинарной строки
-            for (int x = 0; x < heightImage; x++)
+            var length = 0;//счетчик длины бинарной строки
+            for (var x = 0; x < heightImage; x++)
             {
-                for (int y = 0; y < widthImage; y++)
+                for (var y = 0; y < widthImage; y++)
                 {
                     byte red, green, blue;
                     if (length < value.Length)
@@ -155,9 +155,9 @@ namespace StegoF5.Extensions
             var width = pixels.GetLength(0);
             var height = pixels.GetLength(1);
             var image = new Bitmap(width, height);
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (var y = 0; y < height; y++)
                 {
                     image.SetPixel(x, y, pixels[x, y]);
                 }

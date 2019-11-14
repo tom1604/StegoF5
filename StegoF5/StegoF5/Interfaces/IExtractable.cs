@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
-namespace StegoF5
+namespace StegoF5.Interfaces
 {
     internal interface IExtractable
     {
+        string Extract(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, int? countBits);
     }
 }

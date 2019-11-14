@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-
-namespace StegoF5
+﻿namespace StegoF5.Interfaces
 {
     internal interface IModifiable : IEmbeddable, IExtractable
     {
-        
     }
 }
