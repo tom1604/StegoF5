@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using StegoF5.Extensions;
 
 namespace StegoF5
 {
@@ -16,21 +17,21 @@ namespace StegoF5
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, int bitsLength)
         {
-            var bitsSequance = CommonExtensions.GenerateBitsSequence(bitsLength);
+            var bitsSequance = CommonExtensions.GenerateBitsSequence(bitsLength).ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsSequance);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, string text)
         {
-            var bitsString = text.ToBitsString();
+            var bitsString = text.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, Bitmap embeddableImage)
         {
-            var bitsString = embeddableImage.ToBitsString();
+            var bitsString = embeddableImage.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
         }
 

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace StegoF5
+namespace StegoF5.Extensions
 {
     internal static class CommonExtensions
     {
@@ -114,6 +114,56 @@ namespace StegoF5
             }
 
             return resultString.ToString();
+        }
+
+        internal static byte[] ToByteArray(this string value)
+        {
+            return value.Select(x => Convert.ToByte(x.ToString())).ToArray();
+        }
+
+        internal static string ToCompleteStringEmptyBits(this string value, int border)
+        {
+            if (border == 0)
+            {
+                return value;
+            }
+
+            while (value.Length % border != 0)
+            {
+                value += "0";
+            }
+
+            return value;
+        }
+
+        internal static Color[,] ToPixelsArray(this Bitmap image)
+        {
+            var pixelsArray = new Color[image.Height, image.Width];
+            for (var x = 0; x < image.Height; x++)
+            {
+                for (var y = 0; y < image.Width; y++)
+                {
+                    pixelsArray[x, y] = image.GetPixel(x, y);
+                }
+            }
+
+            return pixelsArray;
+        }
+
+        internal static Bitmap ToBitmapImage(this Color[,] pixels)
+        {
+            var width = pixels.GetLength(0);
+            var height = pixels.GetLength(1);
+            var image = new Bitmap(width, height);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    image.SetPixel(x, y, pixels[x, y]);
+                }
+            }
+
+            return image;
         }
     }
 }
