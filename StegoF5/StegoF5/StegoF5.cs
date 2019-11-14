@@ -16,46 +16,46 @@ namespace StegoF5
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, int bitsLength)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int bitsLength)
         {
             var bitsSequance = CommonExtensions.GenerateBitsSequence(bitsLength).ToCompleteStringEmptyBits(significantBitsLength);
-            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsSequance);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsSequance);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, string text)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string text)
         {
             var bitsString = text.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
-            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsString);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, Bitmap embeddableImage)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, Bitmap embeddableImage)
         {
             var bitsString = embeddableImage.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
-            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, bitsString);
+            return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsString);
         }
 
         public static Bitmap ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, int widthImage, int heightImage)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int widthImage, int heightImage)
         {
             var countBits = widthImage * heightImage * 3 * 8;
-            var binImage = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, countBits);
+            var binImage = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, countBits);
             return binImage.ToBitmap(widthImage, heightImage);
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, int textLength)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int textLength)
         {
             var countBits = textLength * 16;
-            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, countBits);
+            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, countBits);
             return binText.ToTextString(textLength);
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix)
         {
-            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, null);
+            var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, null);
             return binText.ToTextString();
         }
     }

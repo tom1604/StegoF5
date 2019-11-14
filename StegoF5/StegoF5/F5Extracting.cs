@@ -8,7 +8,7 @@ namespace StegoF5
 {
     internal class F5Extracting : BaseF5, IExtractable
     {
-        public string Extract(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, int? countBits)
+        public string Extract(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int? countBits)
         {
             var binInformation = new StringBuilder();
             var countWords = 0;//счетчик кодовых слов

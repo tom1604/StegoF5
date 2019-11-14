@@ -9,7 +9,7 @@ namespace StegoF5
     internal class F5Embedding : BaseF5, IEmbeddable
     {
         public Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, string binInformation)
+            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string binInformation)
         {
             var countWords = 0;
             var count = 0;
@@ -29,15 +29,15 @@ namespace StegoF5
                 //получение синдрома от слова
                 var syndrom = GetSyndrom(matrix, word);
                 // сложение синдрома и встраиваемой битовой строкой по модулю два
-                for (int i = 0; i < significantBitsLength - 1; i++)
+                for (var i = 0; i < significantBitsLength - 1; i++)
                 {
                     syndrom[i] = (byte)((syndrom[i] + information[count + i]) % 2);
                 }
                 count += significantBitsLength - 1;
                 //получение вектора ошибки
-                var vector = FindWeightErrorVector(Matrix3x7, syndrom, significantBitsLength);
+                var vector = FindWeightErrorVector(matrix, syndrom, significantBitsLength);
                 //сложение вектора ошибки со словом
-                for (int i = 0; i < word.Length; i++)
+                for (var i = 0; i < word.Length; i++)
                 {
                     word[i] = (byte)((word[i] + vector[i]) % 2);
                 }
@@ -59,14 +59,12 @@ namespace StegoF5
                 var count = 0;
                 for (var j = 0; j < column; j++)
                 {
-                    if(matrix[i, j] == syndrom[j])
-                    {
-                        count++;
-                    }
-                    else
+                    if (matrix[i, j] != syndrom[j])
                     {
                         break;
                     }
+
+                    count++;
                 }
 
                 vector[i] = (byte) (count == syndrom.Count ? 1 : 0);

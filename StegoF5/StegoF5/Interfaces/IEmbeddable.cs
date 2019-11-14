@@ -5,6 +5,6 @@ namespace StegoF5.Interfaces
 {
     internal interface IEmbeddable
     {
-        Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, string binInformation);
+        Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string binInformation);
     }
 }
