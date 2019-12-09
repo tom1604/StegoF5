@@ -4,9 +4,9 @@ using System.Text;
 using StegoF5.Extensions;
 using StegoF5.Interfaces;
 
-namespace StegoF5
+namespace StegoF5.Services
 {
-    internal class F5Extracting : BaseF5, IExtractable
+    internal class F5ExtractingService : BaseF5Service, IExtractable
     {
         public string Extract(Bitmap image, int wordLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int? countBits)
         {
@@ -21,9 +21,9 @@ namespace StegoF5
             //получение рабочей области
             FormWorkspace(imagePixels, areaEmdedding);
             //извлечение битов из кодовых слов рабочей области стегоконтейнера
-            while ((countWords < (countBits / significantBitsLength))
-                   && ((countWords * significantBitsLength) <= (Significantbits.Length - significantBitsLength))
-                   && ((countWords * insignificantBitsLength) <= (Insignificantbits.Length - insignificantBitsLength)))
+            while (countWords < (countBits / significantBitsLength)
+                   && (countWords * significantBitsLength) <= (Significantbits.Length - significantBitsLength)
+                   && (countWords * insignificantBitsLength) <= (Insignificantbits.Length - insignificantBitsLength))
             {
                 //формировани кодового слова
                 var word = GetWord(insignificantBitsLength, significantBitsLength, countWords);
