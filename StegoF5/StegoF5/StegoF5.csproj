@@ -50,10 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseF5.cs" />
+    <Compile Include="Services\BaseF5Service.cs" />
     <Compile Include="Extensions\CommonExtensions.cs" />
-    <Compile Include="F5Embedding.cs" />
-    <Compile Include="F5Extracting.cs" />
+    <Compile Include="Services\F5EmbeddingService.cs" />
+    <Compile Include="Services\F5ExtractingService.cs" />
     <Compile Include="Interfaces\IEmbeddable.cs" />
     <Compile Include="Interfaces\IExtractable.cs" />
     <Compile Include="Interfaces\IModifiable.cs" />
@@ -69,8 +69,6 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NewFolder1\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

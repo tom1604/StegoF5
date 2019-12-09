@@ -4,9 +4,9 @@ using System.Linq;
 using StegoF5.Extensions;
 using StegoF5.Interfaces;
 
-namespace StegoF5
+namespace StegoF5.Services
 {
-    internal class F5Embedding : BaseF5, IEmbeddable
+    internal class F5EmbeddingService : BaseF5Service, IEmbeddable
     {
         public Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength,
             Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string binInformation)

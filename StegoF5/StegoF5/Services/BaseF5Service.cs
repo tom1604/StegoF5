@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace StegoF5
+namespace StegoF5.Services
 {
-    internal class BaseF5
+    internal class BaseF5Service
     {
         protected string Significantbits { get; set; }
 
