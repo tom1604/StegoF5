@@ -2,11 +2,14 @@
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace StegoF5.Extensions
 {
     internal static class CommonExtensions
     {
+        public static Logger Logger = LogManager.GetCurrentClassLogger();
+
         internal static string GenerateBitsSequence(int bitsLength)
         {
             var random = new Random();
@@ -23,11 +26,23 @@ namespace StegoF5.Extensions
 
         internal static string ToBitsString(this string value)
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                Logger.Warn("Convert to bits string failed! String for convert is null or Empty!");
+                return string.Empty;
+            }
+
             return value.Select(x => Convert.ToString(x, 2).PadLeft(16, '0')).ToString();
         }
 
         internal static string ToBitsString(this Bitmap value)
         {
+            if (value == null || value.Height == 0 && value.Width == 0)
+            {
+                Logger.Warn("Convert to bits string failed! Image for convert is null or Empty!");
+                return string.Empty;
+            }
+
             var resultString = new StringBuilder();
             for (var x = 0; x < value.Height; x++)
             {

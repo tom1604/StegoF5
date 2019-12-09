@@ -21,9 +21,9 @@ namespace StegoF5
             //получение рабочей области
             FormWorkspace(imagePixels, areaEmdedding);
             //извлечение битов из кодовых слов рабочей области стегоконтейнера
-            while ((countWords < (countBits / significantBitsLength))
-                   && ((countWords * significantBitsLength) <= (Significantbits.Length - significantBitsLength))
-                   && ((countWords * insignificantBitsLength) <= (Insignificantbits.Length - insignificantBitsLength)))
+            while (countWords < (countBits / significantBitsLength)
+                   && (countWords * significantBitsLength) <= (Significantbits.Length - significantBitsLength)
+                   && (countWords * insignificantBitsLength) <= (Insignificantbits.Length - insignificantBitsLength))
             {
                 //формировани кодового слова
                 var word = GetWord(insignificantBitsLength, significantBitsLength, countWords);

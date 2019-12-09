@@ -121,12 +121,12 @@ namespace StegoF5
             return numberColumn;
         }
 
-        private bool CheckVector(IEnumerable<byte> syndrom, IReadOnlyList<byte> vector)
+        private static bool CheckVector(IEnumerable<byte> syndrom, IReadOnlyList<byte> vector)
         {
             return !syndrom.Where((t, i) => t != vector[i]).Any();
         }
 
-        private byte[] SumColomn(byte[,] matrix, int first, int second)
+        private static byte[] SumColomn(byte[,] matrix, int first, int second)
         {
             var result = new byte[matrix.GetLength(0)];
             for (var i = 0; i < matrix.GetLength(1); i++)
@@ -137,12 +137,12 @@ namespace StegoF5
             return result;
         }
 
-        private bool CheckNullVector(IEnumerable<byte> vector)
+        private static bool CheckNullVector(IEnumerable<byte> vector)
         {
             return vector.All(t => t == 0);
         }
 
-        private Color[,] EmbedWorkspace(Color[,] container, IReadOnlyList<Dictionary<string, bool[]>> areaEmdedding, IEnumerable<byte[]> workspace, int signbitsLength)
+        private static Color[,] EmbedWorkspace(Color[,] container, IReadOnlyList<Dictionary<string, bool[]>> areaEmdedding, IEnumerable<byte[]> workspace, int signbitsLength)
         {
             var significantbits = new List<byte>();
             var insignificantbits = new List<byte>();
