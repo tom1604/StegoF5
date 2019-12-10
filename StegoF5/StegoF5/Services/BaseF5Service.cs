@@ -3,16 +3,25 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace StegoF5.Services
 {
     internal class BaseF5Service
     {
+        protected static Logger Logger = LogManager.GetCurrentClassLogger();
+
         protected string Significantbits { get; set; }
 
         protected string Insignificantbits { get; set; }
 
-        protected void FormWorkspace(Color[,] container, Dictionary<string, bool[]>[] areaEmdedding)
+        protected BaseF5Service()
+        {
+            Significantbits = null;
+            Insignificantbits = null;
+        }
+
+        protected void FormWorkspace(Color[,] container, Dictionary<string, bool[]>[] areaEmbedding)
         {
             var rows = container.GetLength(0);
             var columns = container.GetLength(1);
@@ -24,34 +33,42 @@ namespace StegoF5.Services
                 {
                     for (var i = 0; i < 8; i++)
                     {
-                        if (areaEmdedding[0]["R"][i])
+                        try
                         {
-                            significantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
-                        }
+                            if (areaEmbedding[0]["R"][i])
+                            {
+                                significantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
+                            }
 
-                        if (areaEmdedding[0]["G"][i])
-                        {
-                            significantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
-                        }
+                            if (areaEmbedding[0]["G"][i])
+                            {
+                                significantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
+                            }
 
-                        if (areaEmdedding[0]["B"][i])
-                        {
-                            significantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
-                        }
+                            if (areaEmbedding[0]["B"][i])
+                            {
+                                significantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
+                            }
 
-                        if (areaEmdedding[1]["R"][i])
-                        {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
-                        }
+                            if (areaEmbedding[1]["R"][i])
+                            {
+                                insignificantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
+                            }
 
-                        if (areaEmdedding[1]["G"][i])
-                        {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
-                        }
+                            if (areaEmbedding[1]["G"][i])
+                            {
+                                insignificantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
+                            }
 
-                        if (areaEmdedding[1]["B"][i])
+                            if (areaEmbedding[1]["B"][i])
+                            {
+                                insignificantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
+                            Logger.Error("Forming Workspace failed!", ex.Message, ex.StackTrace);
+                            return;
                         }
                     }
                 }
