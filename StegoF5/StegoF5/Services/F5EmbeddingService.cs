@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using StegoF5.Extensions;
 using StegoF5.Interfaces;
+using StegoF5.Models;
 
 namespace StegoF5.Services
 {
     internal class F5EmbeddingService : BaseF5Service, IEmbeddable
     {
         public Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string binInformation)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, string binInformation)
         {
             var countWords = 0;
             var count = 0;
@@ -19,12 +19,14 @@ namespace StegoF5.Services
             var imagePixels = image.ToPixelsArray();
             var insignificantBitsLength = wordLength - significantBitsLength;
             //формирование рабочей области
-            FormWorkspace(imagePixels, areaEmdedding);
+            var workSpace = FormWorkspace(imagePixels, areaEmdedding);
             //Встраивание битовой строки в рабочую область контейнера
-            while ((countWords < information.Length / significantBitsLength) && (countWords * significantBitsLength <= Significantbits.Length - significantBitsLength) && (countWords * insignificantBitsLength <= Insignificantbits.Length - insignificantBitsLength))
+            while ((countWords < information.Length / significantBitsLength) 
+                   && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) 
+                   && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
                 //получение слова из рабочей области изображения (значимые и незначимые биты)
-                var word = GetWord(insignificantBitsLength, significantBitsLength, countWords);
+                var word = GetWord(workSpace, insignificantBitsLength, significantBitsLength, countWords);
                 countWords++;
                 //получение синдрома от слова
                 var syndrom = GetSyndrom(matrix, word);
@@ -76,7 +78,7 @@ namespace StegoF5.Services
         protected byte[] FindWeightErrorVector(byte[,] matrix, byte[] syndrom, int significantBitsLength)
         {
             var vector = FindErrorVector(matrix, syndrom);
-            if (!CheckNullVector(vector))
+            if (!vector.IsNullVector())
             {
                 return vector;
             }
@@ -96,7 +98,7 @@ namespace StegoF5.Services
             return vector;
         }
 
-        private List<int> FindNumberColumn(byte[,] matrix, byte[] syndrom, int significantBitsLength)
+        private static List<int> FindNumberColumn(byte[,] matrix, byte[] syndrom, int significantBitsLength)
         {
             List<int> numberColumn = null;
             var lowestWeightColumn = int.MaxValue;
@@ -105,8 +107,8 @@ namespace StegoF5.Services
             {
                 for (var j = i + 1; j < length; j++)
                 {
-                    var vector = SumColomn(matrix, i, j);
-                    if (CheckVector(syndrom, vector))
+                    var vector = matrix.SumColomn(i, j);
+                    if (syndrom.EqualVector(vector))
                     {
                         var currentWeight = (i < significantBitsLength ? 1 : 2) + (j < significantBitsLength ? 1 : 2);
                         if (currentWeight < lowestWeightColumn)
@@ -121,34 +123,13 @@ namespace StegoF5.Services
             return numberColumn;
         }
 
-        private static bool CheckVector(IEnumerable<byte> syndrom, IReadOnlyList<byte> vector)
-        {
-            return !syndrom.Where((t, i) => t != vector[i]).Any();
-        }
-
-        private static byte[] SumColomn(byte[,] matrix, int first, int second)
-        {
-            var result = new byte[matrix.GetLength(0)];
-            for (var i = 0; i < matrix.GetLength(1); i++)
-            {
-                result[i] = (byte)((matrix[first, i] + matrix[second, i]) % 2);
-            }
-
-            return result;
-        }
-
-        private static bool CheckNullVector(IEnumerable<byte> vector)
-        {
-            return vector.All(t => t == 0);
-        }
-
-        private static Color[,] EmbedWorkspace(Color[,] container, IReadOnlyList<Dictionary<string, bool[]>> areaEmdedding, IEnumerable<byte[]> workspace, int signbitsLength)
+        private static Color[,] EmbedWorkspace(Color[,] container, AreaEmbeddingModel areaEmdedding, IEnumerable<byte[]> workspace, int signbitsLength)
         {
             var significantbits = new List<byte>();
             var insignificantbits = new List<byte>();
             var width = container.GetLength(0);
             var height = container.GetLength(1);
-            var exit = false;//флаг выход из циклов
+
             foreach (var it in workspace)
             {
                 for (var i = 0; i < it.Length; i++)
@@ -176,47 +157,43 @@ namespace StegoF5.Services
                     int blue = container[x, y].B;
                     for (var i = 0; i < 8; i++)
                     {
-                        if (areaEmdedding[0]["R"][i] && (signCount < significantbits.Count))
+                        if (areaEmdedding.SignificantBits["R"][i] && signCount < significantbits.Count)
                         {
-                            red = significantbits[signCount] == 1 ? red | (1 << i) : red & ~(1 << i);
+                            red = red.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmdedding[0]["G"][i] && (signCount < significantbits.Count))
+                        if (areaEmdedding.SignificantBits["G"][i] && signCount < significantbits.Count)
                         {
-                            green = significantbits[signCount] == 1 ? green | (1 << i) : green & ~(1 << i);
+                            green = green.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmdedding[0]["B"][i] && (signCount < significantbits.Count))
+                        if (areaEmdedding.SignificantBits["B"][i] && signCount < significantbits.Count)
                         {
-                            blue = significantbits[signCount] == 1 ? blue | (1 << i) : blue & ~(1 << i);
+                            blue = blue.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmdedding[1]["R"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmdedding.SignificantBits["R"][i] && insignCount < insignificantbits.Count)
                         {
-                            red = insignificantbits[insignCount] == 1 ? red | (1 << i) : red & ~(1 << i);
+                            red = red.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
-                        if (areaEmdedding[1]["G"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmdedding.SignificantBits["G"][i] && insignCount < insignificantbits.Count)
                         {
-                            green = insignificantbits[insignCount] == 1 ? green | (1 << i) : green & ~(1 << i);
+                            green = green.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
-                        if (areaEmdedding[1]["B"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmdedding.SignificantBits["B"][i] && insignCount < insignificantbits.Count)
                         {
-                            blue = insignificantbits[insignCount] == 1 ? blue | (1 << i) : blue & ~(1 << i);
+                            blue = blue.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
                     }
                     container[x, y] = Color.FromArgb(container[x, y].A, red, green, blue);
                     if (insignCount >= insignificantbits.Count && signCount >= significantbits.Count)
                     {
-                        exit = true;
-                        break;
+                        return container;
                     }
                 }
-
-                if (exit)
-                { break;}
             }
 
             return container;

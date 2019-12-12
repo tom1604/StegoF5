@@ -1,63 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using StegoF5.Extensions;
+using StegoF5.Models;
 
 namespace StegoF5.Services
 {
     internal class BaseF5Service
     {
-        protected string Significantbits { get; set; }
-
-        protected string Insignificantbits { get; set; }
-
-        protected void FormWorkspace(Color[,] container, Dictionary<string, bool[]>[] areaEmdedding)
+        protected WorkSpace FormWorkspace(Color[,] container, AreaEmbeddingModel areaEmdedding)
         {
             var rows = container.GetLength(0);
             var columns = container.GetLength(1);
-            var significantbits = new StringBuilder();
-            var insignificantbits = new StringBuilder();
+            var workSpace = new WorkSpace();
             for (var x = 0; x < rows; x++)
             {
                 for (var y = 0; y < columns; y++)
                 {
                     for (var i = 0; i < 8; i++)
                     {
-                        if (areaEmdedding[0]["R"][i])
+                        if (areaEmdedding.SignificantBits["R"][i])
                         {
-                            significantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
+                            workSpace.Significantbits += container[x, y].R.GetBit(i);
                         }
 
-                        if (areaEmdedding[0]["G"][i])
+                        if (areaEmdedding.SignificantBits["G"][i])
                         {
-                            significantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
+                            workSpace.Significantbits += container[x, y].G.GetBit(i);
                         }
 
-                        if (areaEmdedding[0]["B"][i])
+                        if (areaEmdedding.SignificantBits["B"][i])
                         {
-                            significantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
+                            workSpace.Significantbits += container[x, y].B.GetBit(i);
                         }
 
-                        if (areaEmdedding[1]["R"][i])
+                        if (areaEmdedding.InSignificantBits["R"][i])
                         {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
+                            workSpace.Insignificantbits += container[x, y].R.GetBit(i);
                         }
 
-                        if (areaEmdedding[1]["G"][i])
+                        if (areaEmdedding.InSignificantBits["G"][i])
                         {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
+                            workSpace.Insignificantbits += container[x, y].G.GetBit(i);
                         }
 
-                        if (areaEmdedding[1]["B"][i])
+                        if (areaEmdedding.InSignificantBits["B"][i])
                         {
-                            insignificantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
+                            workSpace.Insignificantbits += container[x, y].B.GetBit(i);
                         }
                     }
                 }
             }
-            Significantbits = significantbits.ToString();
-            Insignificantbits = insignificantbits.ToString();
+
+            return workSpace;
         }
 
         protected byte[] GetSyndrom(byte[,] matrix, byte[] word)
@@ -75,10 +70,10 @@ namespace StegoF5.Services
             return syndrom;
         }
 
-        protected byte[] GetWord(int insignificantBitsLength, int significantBitsLength, int countWords)
+        protected byte[] GetWord(WorkSpace workSpace, int insignificantBitsLength, int significantBitsLength, int countWords)
         {
-            var insignificantBits = Insignificantbits.Substring(countWords * insignificantBitsLength, insignificantBitsLength);
-            var significantBits = Significantbits.Substring(countWords * significantBitsLength, significantBitsLength);
+            var insignificantBits = workSpace.Insignificantbits.Substring(countWords * insignificantBitsLength, insignificantBitsLength);
+            var significantBits = workSpace.Significantbits.Substring(countWords * significantBitsLength, significantBitsLength);
 
             return string.Concat(insignificantBits, significantBits).Select(x => Convert.ToByte(x.ToString())).ToArray();
         }
