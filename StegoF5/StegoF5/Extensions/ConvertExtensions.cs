@@ -6,7 +6,7 @@ using NLog;
 
 namespace StegoF5.Extensions
 {
-    internal static class CommonExtensions
+    internal static class ConvertExtensions
     {
         public static Logger Logger = LogManager.GetCurrentClassLogger();
 

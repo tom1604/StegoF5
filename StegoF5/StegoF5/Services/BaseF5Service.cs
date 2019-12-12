@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using NLog;
+using StegoF5.Extensions;
+using StegoF5.Models;
 
 namespace StegoF5.Services
 {
@@ -11,22 +11,11 @@ namespace StegoF5.Services
     {
         protected static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        protected string Significantbits { get; set; }
-
-        protected string Insignificantbits { get; set; }
-
-        protected BaseF5Service()
-        {
-            Significantbits = null;
-            Insignificantbits = null;
-        }
-
-        protected void FormWorkspace(Color[,] container, Dictionary<string, bool[]>[] areaEmbedding)
+        protected WorkSpace FormWorkspace(Color[,] container, AreaEmbeddingModel areaEmbedding)
         {
             var rows = container.GetLength(0);
             var columns = container.GetLength(1);
-            var significantbits = new StringBuilder();
-            var insignificantbits = new StringBuilder();
+            var workSpace = new WorkSpace();
             for (var x = 0; x < rows; x++)
             {
                 for (var y = 0; y < columns; y++)
@@ -34,47 +23,47 @@ namespace StegoF5.Services
                     for (var i = 0; i < 8; i++)
                     {
                         try
+{
+                        if (areaEmbedding.SignificantBits["R"][i])
                         {
-                            if (areaEmbedding[0]["R"][i])
-                            {
-                                significantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
-                            }
-
-                            if (areaEmbedding[0]["G"][i])
-                            {
-                                significantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
-                            }
-
-                            if (areaEmbedding[0]["B"][i])
-                            {
-                                significantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
-                            }
-
-                            if (areaEmbedding[1]["R"][i])
-                            {
-                                insignificantbits.Append(Convert.ToByte(container[x, y].R & (1 << i)) >> i);
-                            }
-
-                            if (areaEmbedding[1]["G"][i])
-                            {
-                                insignificantbits.Append(Convert.ToByte(container[x, y].G & (1 << i)) >> i);
-                            }
-
-                            if (areaEmbedding[1]["B"][i])
-                            {
-                                insignificantbits.Append(Convert.ToByte(container[x, y].B & (1 << i)) >> i);
-                            }
+                            workSpace.Significantbits += container[x, y].R.GetBit(i);
                         }
+
+                        if (areaEmbedding.SignificantBits["G"][i])
+                        {
+                            workSpace.Significantbits += container[x, y].G.GetBit(i);
+                        }
+
+                        if (areaEmbedding.SignificantBits["B"][i])
+                        {
+                            workSpace.Significantbits += container[x, y].B.GetBit(i);
+                        }
+
+                        if (areaEmbedding.InSignificantBits["R"][i])
+                        {
+                            workSpace.Insignificantbits += container[x, y].R.GetBit(i);
+                        }
+
+                        if (areaEmbedding.InSignificantBits["G"][i])
+                        {
+                            workSpace.Insignificantbits += container[x, y].G.GetBit(i);
+                        }
+
+                        if (areaEmbedding.InSignificantBits["B"][i])
+                        {
+                            workSpace.Insignificantbits += container[x, y].B.GetBit(i);
+                        }
+}
                         catch (Exception ex)
                         {
                             Logger.Error("Forming Workspace failed!", ex.Message, ex.StackTrace);
-                            return;
+                            return null;
                         }
                     }
                 }
             }
-            Significantbits = significantbits.ToString();
-            Insignificantbits = insignificantbits.ToString();
+
+            return workSpace;
         }
 
         protected byte[] GetSyndrom(byte[,] matrix, byte[] word)
@@ -92,10 +81,10 @@ namespace StegoF5.Services
             return syndrom;
         }
 
-        protected byte[] GetWord(int insignificantBitsLength, int significantBitsLength, int countWords)
+        protected byte[] GetWord(WorkSpace workSpace, int insignificantBitsLength, int significantBitsLength, int countWords)
         {
-            var insignificantBits = Insignificantbits.Substring(countWords * insignificantBitsLength, insignificantBitsLength);
-            var significantBits = Significantbits.Substring(countWords * significantBitsLength, significantBitsLength);
+            var insignificantBits = workSpace.Insignificantbits.Substring(countWords * insignificantBitsLength, insignificantBitsLength);
+            var significantBits = workSpace.Significantbits.Substring(countWords * significantBitsLength, significantBitsLength);
 
             return string.Concat(insignificantBits, significantBits).Select(x => Convert.ToByte(x.ToString())).ToArray();
         }

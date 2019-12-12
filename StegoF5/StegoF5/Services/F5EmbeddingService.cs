@@ -1,16 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using StegoF5.Extensions;
 using StegoF5.Interfaces;
+using StegoF5.Models;
 
 namespace StegoF5.Services
 {
     internal class F5EmbeddingService : BaseF5Service, IEmbeddable
     {
         public Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmbedding, byte[,] matrix, string binInformation)
+             AreaEmbeddingModel areaEmbedding, byte[,] matrix, string binInformation)
         {
             var information = binInformation.ToCompleteStringEmptyBits(significantBitsLength).ToByteArray();
             var imagePixels = image.ToPixelsArray();
@@ -23,7 +23,7 @@ namespace StegoF5.Services
         }
 
         private static bool ValidateParams(Color[,] imagePixels, int wordLength, int significantBitsLength,
-            IReadOnlyCollection<Dictionary<string, bool[]>> areaEmbedding, byte[,] matrix, IEnumerable information)
+            AreaEmbeddingModel areaEmbedding, byte[,] matrix, IEnumerable information)
         {
             if (information == null)
             {
@@ -55,7 +55,7 @@ namespace StegoF5.Services
                 return false;
             }
 
-            if (areaEmbedding == null || areaEmbedding.Count == 0)
+            if (areaEmbedding.SignificantBits == null && areaEmbedding.InSignificantBits == null)
             {
                 /*TODO Check dictionary on valid*/
                 Logger.Fatal("Embedding information failed! Area Embedding is null or empty!");
@@ -65,22 +65,21 @@ namespace StegoF5.Services
             return true;
         }
 
-        private Bitmap EmbedCore(Color[,] imagePixels, int insignificantBitsLength, int significantBitsLength, Dictionary<string, bool[]>[] areaEmbedding, byte[,] matrix, byte[] binInformation)
+        private Bitmap EmbedCore(Color[,] imagePixels, int insignificantBitsLength, int significantBitsLength,
+            AreaEmbeddingModel areaEmbedding, byte[,] matrix, IReadOnlyList<byte> binInformation)
         {
             var countWords = 0;
             var count = 0;
             var changedWorkspace = new List<byte[]>();
             //формирование рабочей области
-            FormWorkspace(imagePixels, areaEmbedding);
-            if (Significantbits == null || Insignificantbits == null)
-            {
-                return null;
-            }
+            var workSpace = FormWorkspace(imagePixels, areaEmbedding);
             //Встраивание битовой строки в рабочую область контейнера
-            while ((countWords < binInformation.Length / significantBitsLength) && (countWords * significantBitsLength <= Significantbits.Length - significantBitsLength) && (countWords * insignificantBitsLength <= Insignificantbits.Length - insignificantBitsLength))
+           while ((countWords < binInformation.Count / significantBitsLength) 
+                   && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) 
+                   && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
                 //получение слова из рабочей области изображения (значимые и незначимые биты)
-                var word = GetWord(insignificantBitsLength, significantBitsLength, countWords);
+                var word = GetWord(workSpace, insignificantBitsLength, significantBitsLength, countWords);
                 countWords++;
                 //получение синдрома от слова
                 var syndrom = GetSyndrom(matrix, word);
@@ -132,7 +131,7 @@ namespace StegoF5.Services
         protected byte[] FindWeightErrorVector(byte[,] matrix, byte[] syndrom, int significantBitsLength)
         {
             var vector = FindErrorVector(matrix, syndrom);
-            if (!CheckNullVector(vector))
+            if (!vector.IsNullVector())
             {
                 return vector;
             }
@@ -161,8 +160,8 @@ namespace StegoF5.Services
             {
                 for (var j = i + 1; j < length; j++)
                 {
-                    var vector = SumColomn(matrix, i, j);
-                    if (CheckVector(syndrom, vector))
+                    var vector = matrix.SumColomn(i, j);
+                    if (syndrom.EqualVector(vector))
                     {
                         var currentWeight = (i < significantBitsLength ? 1 : 2) + (j < significantBitsLength ? 1 : 2);
                         if (currentWeight < lowestWeightColumn)
@@ -177,28 +176,7 @@ namespace StegoF5.Services
             return numberColumn;
         }
 
-        private static bool CheckVector(IEnumerable<byte> syndrom, IReadOnlyList<byte> vector)
-        {
-            return !syndrom.Where((t, i) => t != vector[i]).Any();
-        }
-
-        private static byte[] SumColomn(byte[,] matrix, int first, int second)
-        {
-            var result = new byte[matrix.GetLength(0)];
-            for (var i = 0; i < matrix.GetLength(1); i++)
-            {
-                result[i] = (byte)((matrix[first, i] + matrix[second, i]) % 2);
-            }
-
-            return result;
-        }
-
-        private static bool CheckNullVector(IEnumerable<byte> vector)
-        {
-            return vector.All(t => t == 0);
-        }
-
-        private static Color[,] EmbedWorkspace(Color[,] container, IReadOnlyList<Dictionary<string, bool[]>> areaEmbedding, IEnumerable<byte[]> workspace, int signbitsLength)
+        private static Color[,] EmbedWorkspace(Color[,] container, AreaEmbeddingModel areaEmbedding, IEnumerable<byte[]> workspace, int signbitsLength)
         {
             var significantbits = new List<byte>();
             var insignificantbits = new List<byte>();
@@ -232,34 +210,34 @@ namespace StegoF5.Services
                     int blue = container[x, y].B;
                     for (var i = 0; i < 8; i++)
                     {
-                        if (areaEmbedding[0]["R"][i] && (signCount < significantbits.Count))
+                        if (areaEmbedding.SignificantBits["R"][i] && signCount < significantbits.Count)
                         {
-                            red = significantbits[signCount] == 1 ? red | (1 << i) : red & ~(1 << i);
+                            red = red.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmbedding[0]["G"][i] && (signCount < significantbits.Count))
+                        if (areaEmbedding.SignificantBits["G"][i] && signCount < significantbits.Count)
                         {
-                            green = significantbits[signCount] == 1 ? green | (1 << i) : green & ~(1 << i);
+                            green = green.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmbedding[0]["B"][i] && (signCount < significantbits.Count))
+                        if (areaEmbedding.SignificantBits["B"][i] && signCount < significantbits.Count)
                         {
-                            blue = significantbits[signCount] == 1 ? blue | (1 << i) : blue & ~(1 << i);
+                            blue = blue.SetBit(i, significantbits[signCount] == 1);
                             signCount++;
                         }
-                        if (areaEmbedding[1]["R"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmbedding.SignificantBits["R"][i] && insignCount < insignificantbits.Count)
                         {
-                            red = insignificantbits[insignCount] == 1 ? red | (1 << i) : red & ~(1 << i);
+                            red = red.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
-                        if (areaEmbedding[1]["G"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmbedding.SignificantBits["G"][i] && insignCount < insignificantbits.Count)
                         {
-                            green = insignificantbits[insignCount] == 1 ? green | (1 << i) : green & ~(1 << i);
+                            green = green.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
-                        if (areaEmbedding[1]["B"][i] && (insignCount < insignificantbits.Count))
+                        if (areaEmbedding.SignificantBits["B"][i] && insignCount < insignificantbits.Count)
                         {
-                            blue = insignificantbits[insignCount] == 1 ? blue | (1 << i) : blue & ~(1 << i);
+                            blue = blue.SetBit(i, insignificantbits[insignCount] == 1);
                             insignCount++;
                         }
                     }

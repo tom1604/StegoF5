@@ -50,8 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\MathExtensions.cs" />
+    <Compile Include="Models\AreaEmbeddingModel.cs" />
+    <Compile Include="Models\WorkSpace.cs" />
     <Compile Include="Services\BaseF5Service.cs" />
-    <Compile Include="Extensions\CommonExtensions.cs" />
+    <Compile Include="Extensions\ConvertExtensions.cs" />
     <Compile Include="Services\F5EmbeddingService.cs" />
     <Compile Include="Services\F5ExtractingService.cs" />
     <Compile Include="Interfaces\IEmbeddable.cs" />
