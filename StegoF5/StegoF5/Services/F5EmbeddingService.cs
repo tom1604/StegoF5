@@ -22,7 +22,9 @@ namespace StegoF5.Services
             //формирование рабочей области
             var workSpace = FormWorkspace(imagePixels, areaEmdedding);
             //Встраивание битовой строки в рабочую область контейнера
-            while ((countWords < information.Length / significantBitsLength) && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
+            while ((countWords < information.Length / significantBitsLength) 
+                   && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) 
+                   && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
                 //получение слова из рабочей области изображения (значимые и незначимые биты)
                 var word = GetWord(workSpace, insignificantBitsLength, significantBitsLength, countWords);
@@ -77,7 +79,7 @@ namespace StegoF5.Services
         protected byte[] FindWeightErrorVector(byte[,] matrix, byte[] syndrom, int significantBitsLength)
         {
             var vector = FindErrorVector(matrix, syndrom);
-            if (!CheckNullVector(vector))
+            if (!vector.IsNullVector())
             {
                 return vector;
             }
@@ -97,7 +99,7 @@ namespace StegoF5.Services
             return vector;
         }
 
-        private List<int> FindNumberColumn(byte[,] matrix, byte[] syndrom, int significantBitsLength)
+        private static List<int> FindNumberColumn(byte[,] matrix, byte[] syndrom, int significantBitsLength)
         {
             List<int> numberColumn = null;
             var lowestWeightColumn = int.MaxValue;
@@ -106,8 +108,8 @@ namespace StegoF5.Services
             {
                 for (var j = i + 1; j < length; j++)
                 {
-                    var vector = SumColomn(matrix, i, j);
-                    if (CheckVector(syndrom, vector))
+                    var vector = matrix.SumColomn(i, j);
+                    if (syndrom.EqualVector(vector))
                     {
                         var currentWeight = (i < significantBitsLength ? 1 : 2) + (j < significantBitsLength ? 1 : 2);
                         if (currentWeight < lowestWeightColumn)
@@ -120,27 +122,6 @@ namespace StegoF5.Services
             }
 
             return numberColumn;
-        }
-
-        private static bool CheckVector(IEnumerable<byte> syndrom, IReadOnlyList<byte> vector)
-        {
-            return !syndrom.Where((t, i) => t != vector[i]).Any();
-        }
-
-        private static byte[] SumColomn(byte[,] matrix, int first, int second)
-        {
-            var result = new byte[matrix.GetLength(0)];
-            for (var i = 0; i < matrix.GetLength(1); i++)
-            {
-                result[i] = (byte)((matrix[first, i] + matrix[second, i]) % 2);
-            }
-
-            return result;
-        }
-
-        private static bool CheckNullVector(IEnumerable<byte> vector)
-        {
-            return vector.All(t => t == 0);
         }
 
         private static Color[,] EmbedWorkspace(Color[,] container, AreaEmbeddingModel areaEmdedding, IEnumerable<byte[]> workspace, int signbitsLength)
