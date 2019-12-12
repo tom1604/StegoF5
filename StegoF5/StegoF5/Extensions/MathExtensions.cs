@@ -11,9 +11,9 @@ namespace StegoF5.Extensions
             return Convert.ToByte(value & (1 << numberBit)) >> numberBit;
         }
 
-        internal static int SetBit(this int value, int numberBit, bool flag)
+        internal static int SetBit(this int value, int numberBit, bool notNull)
         {
-            return flag ? value | (1 << numberBit) : value & ~(1 << numberBit);
+            return notNull ? value | (1 << numberBit) : value & ~(1 << numberBit);
         }
 
         internal static byte[] SumColomn(this byte[,] matrix, int first, int second)
