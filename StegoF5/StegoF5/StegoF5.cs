@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using StegoF5.Extensions;
 using StegoF5.Interfaces;
+using StegoF5.Models;
 
 namespace StegoF5
 {
@@ -16,28 +18,28 @@ namespace StegoF5
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int bitsLength)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, int bitsLength)
         {
-            var bitsSequance = CommonExtensions.GenerateBitsSequence(bitsLength).ToCompleteStringEmptyBits(significantBitsLength);
+            var bitsSequance = ConvertExtensions.GenerateBitsSequence(bitsLength).ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsSequance);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, string text)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, string text)
         {
             var bitsString = text.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsString);
         }
 
         public static Bitmap EmbedInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, Bitmap embeddableImage)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, Bitmap embeddableImage)
         {
             var bitsString = embeddableImage.ToBitsString().ToCompleteStringEmptyBits(significantBitsLength);
             return Modifier.Embed(image, wordLength, significantBitsLength, areaEmdedding, matrix, bitsString);
         }
 
         public static Bitmap ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int widthImage, int heightImage)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, int widthImage, int heightImage)
         {
             var countBits = widthImage * heightImage * 3 * 8;
             var binImage = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, countBits);
@@ -45,7 +47,7 @@ namespace StegoF5
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix, int textLength)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix, int textLength)
         {
             var countBits = textLength * 16;
             var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, countBits);
@@ -53,7 +55,7 @@ namespace StegoF5
         }
 
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
-            Dictionary<string, bool[]>[] areaEmdedding, byte[,] matrix)
+            AreaEmbeddingModel areaEmdedding, byte[,] matrix)
         {
             var binText = Modifier.Extract(image, wordLength, significantBitsLength, areaEmdedding, matrix, null);
             return binText.ToTextString();
