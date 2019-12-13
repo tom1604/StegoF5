@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using NLog;
@@ -66,19 +67,11 @@ namespace StegoF5.Services
             return workSpace;
         }
 
-        protected byte[] GetSyndrom(byte[,] matrix, byte[] word)
+        protected byte[] GetSyndrom(Matrix matrix, byte[] word)
         {
-            var syndrom = new byte[matrix.GetLength(1)];
-            for (var i = 0; i < matrix.GetLength(1); i++)
-            {
-                for (var j = 0; j < matrix.GetLength(0); j++)
-                {
-                    syndrom[i] += (byte)(word[j] * matrix[j, i]);
-                }
-                syndrom[i] %= 2;
-            }
-
-            return syndrom;
+            var syndrom  = new List<byte>();
+            matrix.ProcessFunctionOverData((i, j) => syndrom.Add((byte)(word[j] * matrix[j, i])));
+            return syndrom.Select(x => (byte)(x % 2)).ToArray();
         }
 
         protected byte[] GetWord(WorkSpace workSpace, int insignificantBitsLength, int significantBitsLength, int countWords)

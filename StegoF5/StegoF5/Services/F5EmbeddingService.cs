@@ -10,7 +10,7 @@ namespace StegoF5.Services
     internal class F5EmbeddingService : BaseF5Service, IEmbeddable
     {
         public Bitmap Embed(Bitmap image, int wordLength, int significantBitsLength,
-             AreaEmbeddingModel areaEmbedding, byte[,] matrix, string binInformation)
+             AreaEmbeddingModel areaEmbedding, Matrix matrix, string binInformation)
         {
             var information = binInformation.ToCompleteStringEmptyBits(significantBitsLength).ToByteArray();
             var imagePixels = image.ToPixelsArray();
@@ -23,7 +23,7 @@ namespace StegoF5.Services
         }
 
         private static bool ValidateParams(Color[,] imagePixels, int wordLength, int significantBitsLength,
-            AreaEmbeddingModel areaEmbedding, byte[,] matrix, IEnumerable information)
+            AreaEmbeddingModel areaEmbedding, Matrix matrix, IEnumerable information)
         {
             if (information == null)
             {
@@ -49,7 +49,7 @@ namespace StegoF5.Services
                 return false;
             }
 
-            if (matrix == null || matrix.Length == 0)
+            if (matrix == null || matrix.Rows == 0 || matrix.Columns == 0)
             {
                 Logger.Fatal("Embedding information failed! Matrix is null or empty!");
                 return false;
@@ -66,7 +66,7 @@ namespace StegoF5.Services
         }
 
         private Bitmap EmbedCore(Color[,] imagePixels, int insignificantBitsLength, int significantBitsLength,
-            AreaEmbeddingModel areaEmbedding, byte[,] matrix, IReadOnlyList<byte> binInformation)
+            AreaEmbeddingModel areaEmbedding, Matrix matrix, IReadOnlyList<byte> binInformation)
         {
             var countWords = 0;
             var count = 0;
@@ -104,15 +104,13 @@ namespace StegoF5.Services
             return pixels.ToBitmapImage();
         }
 
-        private static byte[] FindErrorVector(byte[,] matrix, IReadOnlyList<byte> syndrom)
+        private static byte[] FindErrorVector(Matrix matrix, IReadOnlyList<byte> syndrom)
         {
-            var vector = new byte[matrix.GetLength(0)];
-            var row = matrix.GetLength(0);
-            var column = matrix.GetLength(1);
-            for (var i = 0; i < row; i++)
+            var vector = new byte[matrix.Rows];
+            for (var i = 0; i < matrix.Rows; i++)
             {
                 var count = 0;
-                for (var j = 0; j < column; j++)
+                for (var j = 0; j < matrix.Columns; j++)
                 {
                     if (matrix[i, j] != syndrom[j])
                     {
@@ -128,7 +126,7 @@ namespace StegoF5.Services
             return vector;
         }
 
-        protected byte[] FindWeightErrorVector(byte[,] matrix, byte[] syndrom, int significantBitsLength)
+        protected byte[] FindWeightErrorVector(Matrix matrix, byte[] syndrom, int significantBitsLength)
         {
             var vector = FindErrorVector(matrix, syndrom);
             if (!vector.IsNullVector())
@@ -142,7 +140,7 @@ namespace StegoF5.Services
                 return vector;
             }
 
-            vector = new byte[matrix.GetLength(0)];
+            vector = new byte[matrix.Rows];
             for (var i = 0; i < vector.Length; i++)
             {
                 vector[i] = (byte) (i == numberColumn[0] || i == numberColumn[1] ? 1 : 0);
@@ -151,11 +149,11 @@ namespace StegoF5.Services
             return vector;
         }
 
-        private static List<int> FindNumberColumn(byte[,] matrix, byte[] syndrom, int significantBitsLength)
+        private static List<int> FindNumberColumn(Matrix matrix, byte[] syndrom, int significantBitsLength)
         {
             List<int> numberColumn = null;
             var lowestWeightColumn = int.MaxValue;
-            var length = matrix.GetLength(0);
+            var length = matrix.Rows;
             for (var i = 0; i < length - 1; i++)
             {
                 for (var j = i + 1; j < length; j++)
