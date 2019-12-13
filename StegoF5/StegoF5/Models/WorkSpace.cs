@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace StegoF5.Models
+﻿namespace StegoF5.Models
 {
     internal class WorkSpace
     {
