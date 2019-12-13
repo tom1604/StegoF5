@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using NLog;
 using StegoF5.Extensions;
 using StegoF5.Models;
 
@@ -8,7 +9,9 @@ namespace StegoF5.Services
 {
     internal class BaseF5Service
     {
-        protected WorkSpace FormWorkspace(Color[,] container, AreaEmbeddingModel areaEmdedding)
+        protected static Logger Logger = LogManager.GetCurrentClassLogger();
+
+        protected WorkSpace FormWorkspace(Color[,] container, AreaEmbeddingModel areaEmbedding)
         {
             var rows = container.GetLength(0);
             var columns = container.GetLength(1);
@@ -19,34 +22,42 @@ namespace StegoF5.Services
                 {
                     for (var i = 0; i < 8; i++)
                     {
-                        if (areaEmdedding.SignificantBits["R"][i])
+                        try
+{
+                        if (areaEmbedding.SignificantBits["R"][i])
                         {
                             workSpace.Significantbits += container[x, y].R.GetBit(i);
                         }
 
-                        if (areaEmdedding.SignificantBits["G"][i])
+                        if (areaEmbedding.SignificantBits["G"][i])
                         {
                             workSpace.Significantbits += container[x, y].G.GetBit(i);
                         }
 
-                        if (areaEmdedding.SignificantBits["B"][i])
+                        if (areaEmbedding.SignificantBits["B"][i])
                         {
                             workSpace.Significantbits += container[x, y].B.GetBit(i);
                         }
 
-                        if (areaEmdedding.InSignificantBits["R"][i])
+                        if (areaEmbedding.InSignificantBits["R"][i])
                         {
                             workSpace.Insignificantbits += container[x, y].R.GetBit(i);
                         }
 
-                        if (areaEmdedding.InSignificantBits["G"][i])
+                        if (areaEmbedding.InSignificantBits["G"][i])
                         {
                             workSpace.Insignificantbits += container[x, y].G.GetBit(i);
                         }
 
-                        if (areaEmdedding.InSignificantBits["B"][i])
+                        if (areaEmbedding.InSignificantBits["B"][i])
                         {
                             workSpace.Insignificantbits += container[x, y].B.GetBit(i);
+                        }
+}
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Forming Workspace failed!", ex.Message, ex.StackTrace);
+                            return null;
                         }
                     }
                 }
