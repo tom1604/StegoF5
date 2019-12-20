@@ -5,7 +5,7 @@ namespace StegoF5.Extensions
 {
     public class Matrix
     {
-        private byte[,] _data;
+        private readonly byte[,] _data;
 
         public int Rows { get; }
 
