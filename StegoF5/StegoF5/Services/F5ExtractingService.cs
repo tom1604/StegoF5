@@ -23,6 +23,7 @@ namespace StegoF5.Services
         private string ExtractCore(Color[,] imagePixels, int insignificantBitsLength, int significantBitsLength, AreaEmbeddingModel areaEmbedding, 
             Matrix matrix, int? countBits)
         {
+            Logger.Info("Extract information: Input values are valid");
             var binInformation = new StringBuilder();
             var countWords = 0;//счетчик кодовых слов
             if (countBits == null)
@@ -31,6 +32,7 @@ namespace StegoF5.Services
             }
             //получение рабочей области
             var workSpace = FormWorkspace(imagePixels, areaEmbedding);
+            Logger.Info("Extract information: The working area of the image extracted");
             //извлечение битов из кодовых слов рабочей области стегоконтейнера
             while (countWords < (countBits / significantBitsLength)
                    && (countWords * significantBitsLength) <= (workSpace.Significantbits.Length - significantBitsLength)
@@ -45,7 +47,7 @@ namespace StegoF5.Services
                     binInformation.Append(bit);
                 }
             }
-
+            Logger.Info("Extract information: Information extracted");
             return binInformation.ToString();
         }
 
