@@ -71,10 +71,13 @@ namespace StegoF5.Services
             var countWords = 0;
             var count = 0;
             var changedWorkspace = new List<byte[]>();
+
+            Logger.Info("Embed information: Input values are valid");
             //формирование рабочей области
             var workSpace = FormWorkspace(imagePixels, areaEmbedding);
+            Logger.Info("Embed information: The working area of the image extracted");
             //Встраивание битовой строки в рабочую область контейнера
-           while ((countWords < binInformation.Count / significantBitsLength) 
+            while ((countWords < binInformation.Count / significantBitsLength) 
                    && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) 
                    && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
@@ -99,8 +102,9 @@ namespace StegoF5.Services
                 changedWorkspace.Add(word);
             }
             //встраивание рабочей области в контейнер
+            Logger.Info("Embed information: Embedding a workspace in a container");
             var pixels = EmbedWorkspace(imagePixels, areaEmbedding, changedWorkspace, significantBitsLength);
-
+            Logger.Info("Embed information: Information is embedded");
             return pixels.ToBitmapImage();
         }
 
