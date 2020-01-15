@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\MathExtensions.cs" />
+    <Compile Include="Extensions\Matrix.cs" />
     <Compile Include="Models\AreaEmbeddingModel.cs" />
     <Compile Include="Models\WorkSpace.cs" />
     <Compile Include="Services\BaseF5Service.cs" />
