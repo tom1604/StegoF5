@@ -73,38 +73,36 @@ namespace StegoF5.Services
             var changedWorkspace = new List<byte[]>();
 
             Logger.Info("Embed information: Input values are valid");
-            //формирование рабочей области
             var workSpace = FormWorkspace(imagePixels, areaEmbedding);
+
             Logger.Info("Embed information: The working area of the image extracted");
-            //Встраивание битовой строки в рабочую область контейнера
             while ((countWords < binInformation.Count / significantBitsLength) 
                    && (countWords * significantBitsLength <= workSpace.Significantbits.Length - significantBitsLength) 
                    && (countWords * insignificantBitsLength <= workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
-                //получение слова из рабочей области изображения (значимые и незначимые биты)
                 var word = GetWord(workSpace, insignificantBitsLength, significantBitsLength, countWords);
                 countWords++;
-                //получение синдрома от слова
                 var syndrom = GetSyndrom(matrix, word);
-                // сложение синдрома и встраиваемой битовой строкой по модулю два
+
                 for (var i = 0; i < significantBitsLength - 1; i++)
                 {
                     syndrom[i] = (byte)((syndrom[i] + binInformation[count + i]) % 2);
                 }
                 count += significantBitsLength - 1;
-                //получение вектора ошибки
+
                 var vector = FindWeightErrorVector(matrix, syndrom, significantBitsLength);
-                //сложение вектора ошибки со словом
+
                 for (var i = 0; i < word.Length; i++)
                 {
                     word[i] = (byte)((word[i] + vector[i]) % 2);
                 }
                 changedWorkspace.Add(word);
             }
-            //встраивание рабочей области в контейнер
+
             Logger.Info("Embed information: Embedding a workspace in a container");
             var pixels = EmbedWorkspace(imagePixels, areaEmbedding, changedWorkspace, significantBitsLength);
             Logger.Info("Embed information: Information is embedded");
+
             return pixels.ToBitmapImage();
         }
 
@@ -130,7 +128,7 @@ namespace StegoF5.Services
             return vector;
         }
 
-        protected byte[] FindWeightErrorVector(Matrix matrix, byte[] syndrom, int significantBitsLength)
+        private static byte[] FindWeightErrorVector(Matrix matrix, byte[] syndrom, int significantBitsLength)
         {
             var vector = FindErrorVector(matrix, syndrom);
             if (!vector.IsNullVector())
@@ -200,8 +198,8 @@ namespace StegoF5.Services
                 }
             }
 
-            var signCount = 0;//счетчик значимых бит
-            var insignCount = 0;//счетчик незначимых бит
+            var signCount = 0;//counter significant bits
+            var insignCount = 0;//counter insignificant bits
 
             for (var x = 0; x < width; x++)
             {

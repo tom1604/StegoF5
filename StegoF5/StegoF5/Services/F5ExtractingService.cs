@@ -25,20 +25,20 @@ namespace StegoF5.Services
         {
             Logger.Info("Extract information: Input values are valid");
             var binInformation = new StringBuilder();
-            var countWords = 0;//счетчик кодовых слов
+            var countWords = 0;//code word counter
             if (countBits == null)
             {
                 countBits = imagePixels.GetLength(0) * imagePixels.GetLength(1) * 3 * 8;
             }
-            //получение рабочей области
+
             var workSpace = FormWorkspace(imagePixels, areaEmbedding);
             Logger.Info("Extract information: The working area of the image extracted");
-            //извлечение битов из кодовых слов рабочей области стегоконтейнера
+
             while (countWords < (countBits / significantBitsLength)
                    && (countWords * significantBitsLength) <= (workSpace.Significantbits.Length - significantBitsLength)
                    && (countWords * insignificantBitsLength) <= (workSpace.Insignificantbits.Length - insignificantBitsLength))
             {
-                //формировани кодового слова
+                //formation of a code word
                 var word = GetWord(workSpace, insignificantBitsLength, significantBitsLength, countWords);
                 countWords++;
                 var syndrom = GetSyndrom(matrix, word);
@@ -47,7 +47,9 @@ namespace StegoF5.Services
                     binInformation.Append(bit);
                 }
             }
+
             Logger.Info("Extract information: Information extracted");
+
             return binInformation.ToString();
         }
 
