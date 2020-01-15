@@ -27,7 +27,7 @@ namespace StegoF5
         /// <param name="image">Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <param name="bitsLength">Number of embedded bits</param>
         /// <returns>Bitmap image with embedded information</returns>
@@ -50,7 +50,7 @@ namespace StegoF5
         /// <param name="image">>Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <param name="text">Embedded text</param>
         /// <returns>Bitmap image with embedded information</returns>
@@ -73,7 +73,7 @@ namespace StegoF5
         /// <param name="image">Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <param name="embeddableImage">Embedded image</param>
         /// <returns>Bitmap image with embedded information</returns>
@@ -96,7 +96,7 @@ namespace StegoF5
         /// <param name="image">Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <param name="widthImage">Width of extracting image</param>
         /// <param name="heightImage">Height of extracting image</param>
@@ -115,7 +115,7 @@ namespace StegoF5
         /// <param name="image">Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <param name="textLength">Number of characters in the extracted text</param>
         /// <returns>Embedded text(string)</returns>
@@ -133,7 +133,7 @@ namespace StegoF5
         /// <param name="image">Bitmap image to embed information in</param>
         /// <param name="wordLength">The length of the code words</param>
         /// <param name="significantBitsLength">Number of significant bits</param>
-        /// <param name="areaEmbedding"></param>
+        /// <param name="areaEmbedding">The area of embedding in pixel</param>
         /// <param name="matrix">Binary matrix for embedding</param>
         /// <returns>Embedded text(string)</returns>
         public static string ExtractInformation(this Bitmap image, int wordLength, int significantBitsLength,
