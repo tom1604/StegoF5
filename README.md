@@ -8,10 +8,10 @@ Library for embedding information in a Bitmap object
 1. Connect the library to the project
 2. Uses the Bitmap extension to embed/extract information
 
-``
+```
     Bitmap bitmap = new Bitmap(20,20);
     var imageWithEmbeddedInformation = bitmap.EmbedInformation(7, 3, new AreaEmbeddingModel(...), new Matrix(...), "TEst");
-``
+```
 
 ### The library's functionality
 * Embed information(Text, Bits Sequence, Image) in Bitmap object;
